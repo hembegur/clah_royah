@@ -1,7 +1,9 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RagdollService = {}
+local Promise = require(ReplicatedStorage.Packages.Promise)
 local ragdollData = require(script.Parent.RaqdollData)
+
+local RagdollService = {}
 
 function RagdollService:BuildJoints(char: Model)
 	local hrp = char:FindFirstChild("HumanoidRootPart")
@@ -135,13 +137,7 @@ function RagdollService:RagdollCharacter(char: Model, duration: number?)
 		return
 	end
 
-	-- cancel previous timer safely
-	if self._RagdollTimers[char] then
-		task.cancel(self._RagdollTimers[char])
-	end
-
-	self._RagdollTimers[char] = task.delay(duration, function()
-		self._RagdollTimers[char] = nil
+	task.delay(duration, function()
 		self:UnragdollCharacter(char)
 	end)
 end
