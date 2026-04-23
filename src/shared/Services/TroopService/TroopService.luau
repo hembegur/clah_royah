@@ -1,0 +1,3 @@
+local troopService = {}
+
+return troopService

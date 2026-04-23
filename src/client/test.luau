@@ -12,7 +12,9 @@ local function characterAdded(char)
 	ability1.KeyboardBinding.KeyCode = Enum.KeyCode.E
 	janitor:Add(
 		ability1.Pressed:Connect(function()
-			packets.spawnTestNPC:Fire(char.HumanoidRootPart.Position + Vector3.new(0, 10, 0))
+			for _ = 0, 10 do
+				packets.spawnTestNPC:Fire(char.HumanoidRootPart.Position + Vector3.new(0, 10, 0))
+			end
 		end),
 		"Disconnect"
 	)
