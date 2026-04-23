@@ -1,3 +1,3 @@
-local troopService = {}
+local troopService = {} -- SHARED
 
-return troopService
+return troopService -- SHARED

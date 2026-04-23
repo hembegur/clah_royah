@@ -14,6 +14,7 @@ function BaseTroop.new(model: Model)
 	self.damage = 10
 	self.attackCooldown = 1
 	self.range = 5
+	self.team = nil
 
 	self.target = nil
 	self.isAlive = true
