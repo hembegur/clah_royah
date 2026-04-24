@@ -4,6 +4,7 @@ local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local services = script.Services
 
 require(services.TroopService.TroopService)
+require(ReplicatedStorage.Packages.Chrono).Start()
 
 -- local ragdollService = require(ReplicatedStorage.Shared.Services.Ragdoll.RaqdollService)
 -- local applyKnockback = require(ReplicatedStorage.Shared.Modules.Game.Applyknockback)
