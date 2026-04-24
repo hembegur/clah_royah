@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
-local services = ReplicatedStorage.Shared.Services
+local services = script.Services
 
 require(services.TroopService.TroopService)
 

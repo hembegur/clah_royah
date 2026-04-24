@@ -1,24 +1,50 @@
 local BaseTroop = {}
 BaseTroop.__index = BaseTroop
 
-function BaseTroop.new(model: Model)
+function BaseTroop.new(clientModel: Model, serverModel: Model)
 	local self = setmetatable({}, BaseTroop)
 
-	self.model = model
-	self.humanoid = model:FindFirstChildOfClass("Humanoid")
-	self.root = model:FindFirstChild("HumanoidRootPart")
+	self.clientModel = clientModel:Clone() :: Model
+	self.serverModel = serverModel:Clone() :: Model
+	self.serverModel.Parent = workspace
+	self.serverModel:PivotTo(CFrame.new(0, 20, 0))
 
-	-- stats (default)
+	self.serverHumanoid = self.serverModel:FindFirstChildOfClass("Humanoid") :: Humanoid
+	self.serverHrp = self.serverModel:FindFirstChild("HumanoidRootPart") :: BasePart
+
+	self.serverHumanoid.RequiresNeck = false
+	self.serverHumanoid.PlatformStand = true
+
+	-- stats
 	self.maxHp = 100
 	self.hp = self.maxHp
 	self.damage = 10
 	self.attackCooldown = 1
 	self.range = 5
-	self.team = nil
 
+	self.team = nil
 	self.target = nil
 	self.isAlive = true
 	self.lastAttackTime = 0
+
+	-- Velocity
+	self.lv = Instance.new("LinearVelocity")
+	self.lv.MaxForce = math.huge
+	self.lv.VectorVelocity = Vector3.zero
+	self.lv.Attachment0 = self.serverHrp:FindFirstChild("RootAttachment")
+	self.lv.Parent = self.serverHrp
+	self.lv.VelocityConstraintMode = Enum.VelocityConstraintMode.Plane
+	self.lv.PlaneVelocity = Vector2.new(1, 0)
+	self.lv.PrimaryTangentAxis = Vector3.new(1, 0, 0)
+	self.lv.SecondaryTangentAxis = Vector3.new(0, 0, 1)
+
+	self.ao = Instance.new("AlignOrientation")
+	self.ao.Mode = Enum.OrientationAlignmentMode.OneAttachment
+	self.ao.Attachment0 = self.serverHrp:FindFirstChildOfClass("Attachment")
+	self.ao.RigidityEnabled = false
+	self.ao.Responsiveness = 10
+	self.ao.MaxTorque = 10000
+	self.ao.Parent = self.serverHrp
 
 	return self
 end
