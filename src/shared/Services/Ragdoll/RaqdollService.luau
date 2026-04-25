@@ -123,13 +123,10 @@ function RagdollService:RagdollCharacter(char: Model, duration: number?)
 	end
 	char:SetAttribute("isRagdoll", true)
 
-	local plr = Players:GetPlayerFromCharacter(char)
-
 	self:EnableMotor6D(char, false)
 	self:BuildJoints(char)
 	self:EnableCollisionParts(char, true)
 
-	hrp:SetNetworkOwner(nil)
 	hum.AutoRotate = false
 	hum.PlatformStand = true
 
@@ -160,8 +157,6 @@ function RagdollService:UnragdollCharacter(char: Model)
 	if not hum or not hrp then
 		return
 	end
-
-	hrp:SetNetworkOwner(nil)
 
 	if hum:GetState() ~= Enum.HumanoidStateType.Dead then
 		hum.PlatformStand = false
