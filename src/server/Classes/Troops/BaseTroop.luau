@@ -111,9 +111,10 @@ function BaseTroop:Update(dt: number)
 
 		self.moveElapsed += dt
 
-		if self.moveElapsed > 0.1 then
-			packets.updateNpcPos:Fire(self.id, self.position)
-			self.moveElapsed = 0
+		if self.moveElapsed > 0.05 then
+			packets.updateNpcPos:Fire(self.id, Vector3.new(self.position.X, 3, self.position.Z))
+			--print(Vector3.new(self.position.X, 0, self.position.Z))
+			self.moveElapsed -= 0.05
 		end
 	end
 

@@ -12,7 +12,7 @@ local function characterAdded(char)
 	ability1.KeyboardBinding.KeyCode = Enum.KeyCode.E
 	janitor:Add(
 		ability1.Pressed:Connect(function()
-			for _ = 1, 10 do
+			for _ = 1, 1 do
 				packets.spawnNpc:Fire({
 					Name = "SwordMan",
 					Team = "Blue",

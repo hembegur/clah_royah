@@ -13,3 +13,5 @@ packets.removeFromClient.OnClientEvent:Connect(function(object)
 		object:Destroy()
 	end)
 end)
+
+require(ReplicatedStorage.Shared.Classes.Troops.SwordMan)
