@@ -4,7 +4,7 @@ local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local BaseTroop = {}
 BaseTroop.__index = BaseTroop
 
-function BaseTroop.new(id, clientModel: Model, position: Vector3)
+function BaseTroop.new(id, clientModel: Model)
 	local self = setmetatable({}, BaseTroop)
 
 	-- stats
@@ -17,7 +17,7 @@ function BaseTroop.new(id, clientModel: Model, position: Vector3)
 	self.walkSpeed = 10
 
 	-- state
-	self.position = position or Vector3.new(0, 0, 0)
+	self.position = Vector3.new(0, 0, 0)
 	self.direction = Vector3.new(0, 0, 1)
 	self.target = nil
 	self.isAlive = true
@@ -112,12 +112,8 @@ function BaseTroop:Update(dt: number)
 		self.moveElapsed += dt
 
 		if self.moveElapsed > 0.1 then
+			packets.updateNpcPos:Fire(self.id, self.position)
 			self.moveElapsed = 0
-
-			if (self.position - self.lastSentPosition).Magnitude > 0.5 then
-				packets.updateNpcPos:Fire(self.id, self.position)
-				self.lastSentPosition = self.position
-			end
 		end
 	end
 

@@ -13,7 +13,11 @@ local function characterAdded(char)
 	janitor:Add(
 		ability1.Pressed:Connect(function()
 			for _ = 1, 10 do
-				packets.spawnTestNPC:Fire(char.HumanoidRootPart.Position + Vector3.new(0, 10, 0))
+				packets.spawnNpc:Fire({
+					Name = "SwordMan",
+					Team = "Blue",
+					Position = char.HumanoidRootPart.Position + Vector3.new(0, 10, 0),
+				})
 			end
 		end),
 		"Disconnect"

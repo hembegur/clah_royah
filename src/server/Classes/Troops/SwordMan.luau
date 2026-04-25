@@ -5,8 +5,8 @@ local assets = ReplicatedStorage.Assets
 local SwordMan = setmetatable({}, BaseTroop)
 SwordMan.__index = SwordMan
 
-function SwordMan.new(team)
-	local self = setmetatable(BaseTroop.new(assets.Troops.DefaultRig), SwordMan)
+function SwordMan.new(id, team)
+	local self = setmetatable(BaseTroop.new(id, assets.Troops.DefaultRig), SwordMan)
 
 	self.team = team
 	self.maxHp = 100

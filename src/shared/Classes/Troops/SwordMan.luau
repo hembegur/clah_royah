@@ -1,20 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local BaseTroop = require(script.Parent.BaseTroop)
 local assets = ReplicatedStorage.Assets
+local npcRegistry = require(ReplicatedStorage.Shared.Modules.Core.NpcRegistry)
+local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 
-local SwordMan = setmetatable({}, BaseTroop)
-SwordMan.__index = SwordMan
-
-function SwordMan.new(team)
-	local self = setmetatable(BaseTroop.new(assets.Troops.DefaultRig), SwordMan)
-
-	self.team = team
-	self.maxHp = 100
-	self.hp = 100
-	self.damage = 8
-	self.attackCooldown = 0.5
-
-	return self
-end
+local SwordMan = {}
 
 return SwordMan
