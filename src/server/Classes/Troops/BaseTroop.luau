@@ -26,6 +26,7 @@ function BaseTroop.new(id, clientModel: Model)
 	self.moveElapsed = 0
 
 	self.clientModel = clientModel:Clone() :: Model
+	self.renderHeight = 6.5
 
 	return self
 end
@@ -33,7 +34,7 @@ end
 -------------------MOVEMENT LOGIC
 function BaseTroop:SetPosition(position: Vector3)
 	self.position = position
-	packets.teleportNpc:Fire(self.id, Vector3.new(self.position.X, 1, self.position.Z))
+	packets.teleportNpc:Fire(self.id, Vector3.new(self.position.X, self.renderHeight, self.position.Z))
 end
 
 function BaseTroop:LookAt(targetPosition: Vector3)
@@ -52,7 +53,7 @@ end
 
 function BaseTroop:MoveTo(position: Vector3)
 	self:LookAt(position)
-	self.moveTarget = Vector3.new(position.X, 0, position.Z)
+	self.moveTarget = Vector3.new(position.X, self.renderHeight, position.Z)
 end
 
 -------------------ATTACK LOGIC
@@ -114,7 +115,7 @@ function BaseTroop:Update(dt: number)
 		self.moveElapsed += dt
 
 		if self.moveElapsed > 0.05 then
-			packets.updateNpcPos:Fire(self.id, Vector3.new(self.position.X, 1, self.position.Z))
+			packets.updateNpcPos:Fire(self.id, Vector3.new(self.position.X, self.renderHeight, self.position.Z))
 			--print(Vector3.new(self.position.X, 0, self.position.Z))
 			self.moveElapsed -= 0.05
 		end

@@ -23,6 +23,15 @@ local function characterAdded(char)
 		"Disconnect"
 	)
 
+	local testMatch = keybindModule.GetAction("InGame", "testMatch")
+	testMatch.KeyboardBinding.KeyCode = Enum.KeyCode.R
+	janitor:Add(
+		testMatch.Pressed:Connect(function()
+			packets.testMatch:Fire()
+		end),
+		"Disconnect"
+	)
+
 	keybindModule.EnableContext("InGame")
 end
 

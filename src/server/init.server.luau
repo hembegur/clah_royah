@@ -1,10 +1,16 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local services = script.Services
 
 require(services.TroopService.TroopService)
 require(ReplicatedStorage.Packages.Chrono).Start()
+
+packets.testMatch.OnServerEvent:Connect(function(player: Player)
+	local matchService = require(ServerScriptService.Server.Classes.Match.Match)
+	local newMatch = matchService.new(ReplicatedStorage.Assets.Maps.TestMap, Vector3.new(0, 6, 0))
+end)
 
 -- local ragdollService = require(ReplicatedStorage.Shared.Services.Ragdoll.RaqdollService)
 -- local applyKnockback = require(ReplicatedStorage.Shared.Modules.Game.Applyknockback)

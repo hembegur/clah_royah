@@ -11,6 +11,8 @@ Packets.teleportNpc = packet("teleportNpc", packet.NumberU16, packet.Vector3F24)
 
 Packets.removeFromClient = packet("removeFromClient", packet.Any) --Delete from client
 
+Packets.testMatch = packet("testMatch")
+
 return Packets
 
 --[[
