@@ -18,7 +18,7 @@ packets.spawnNpc.OnServerEvent:Connect(function(player: Player, data)
 	npcRegistry:Register(newTroop)
 	table.insert(troops, newTroop)
 
-	local newData = data
+	local newData = data -- send data back to replicate on client by adding id to the data
 	data["id"] = newTroop.id
 	packets.spawnNpc:Fire(newData)
 
