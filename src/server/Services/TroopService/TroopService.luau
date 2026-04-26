@@ -16,12 +16,13 @@ packets.spawnNpc.OnServerEvent:Connect(function(player: Player, data)
 	print("spawn")
 	local newTroop = troopsRegistry[data.Name].new(npcRegistry:GetNextId(), data.Team)
 	npcRegistry:Register(newTroop)
-	newTroop:SetPosition(data.Position + Vector3.new(0, 10, 0))
 	table.insert(troops, newTroop)
 
 	local newData = data
 	data["id"] = newTroop.id
 	packets.spawnNpc:Fire(newData)
+
+	newTroop:SetPosition(data.Position + Vector3.new(0, 10, 0))
 
 	for _ = 1, 20 do
 		newTroop:MoveTo(Vector3.new(random:NextInteger(-100, 100), 5, random:NextInteger(-100, 100)))

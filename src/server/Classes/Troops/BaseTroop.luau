@@ -33,6 +33,7 @@ end
 -------------------MOVEMENT LOGIC
 function BaseTroop:SetPosition(position: Vector3)
 	self.position = position
+	packets.teleportNpc:Fire(self.id, Vector3.new(self.position.X, 1, self.position.Z))
 end
 
 function BaseTroop:LookAt(targetPosition: Vector3)
@@ -46,6 +47,7 @@ function BaseTroop:LookAt(targetPosition: Vector3)
 		return
 	end
 	self.direction = dir.Unit
+	packets.updateNpcDir:Fire(self.id, self.direction)
 end
 
 function BaseTroop:MoveTo(position: Vector3)

@@ -4,8 +4,10 @@ local packet = require(packages:WaitForChild("Packet"))
 
 local Packets = {}
 
-Packets.spawnNpc = packet("getPlayerDataPacket", packet.Any) --Data
+Packets.spawnNpc = packet("spawnNpc", packet.Any) --Data
 Packets.updateNpcPos = packet("updateNpcPos", packet.NumberU16, packet.Vector3F24) --id / position
+Packets.updateNpcDir = packet("updateNpcDir", packet.NumberU16, packet.Vector3F24) --id / look at position
+Packets.teleportNpc = packet("teleportNpc", packet.NumberU16, packet.Vector3F24) --id / position
 
 Packets.removeFromClient = packet("removeFromClient", packet.Any) --Delete from client
 
