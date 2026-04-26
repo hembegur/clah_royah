@@ -56,6 +56,13 @@ packets.teleportNpc.OnClientEvent:Connect(function(id: number, position: Vector3
 	SwordMan.Npcs[id]["targetPos"] = position
 end)
 
+packets.killNpc.OnClientEvent:Connect(function(id: number)
+	if SwordMan.Npcs[id] then
+		SwordMan.Npcs[id]["model"]:Destroy()
+		SwordMan.Npcs[id] = nil
+	end
+end)
+
 RunService.Heartbeat:Connect(function(dt)
 	for id, npc in pairs(SwordMan.Npcs) do
 		local model = npc.model

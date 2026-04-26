@@ -23,6 +23,7 @@ function Match.new(mapModel: Model, position: Vector3)
 	self.mapModel.Parent = workspace
 
 	self.janitor = Janitor.new()
+	self.janitor:Add(self.mapModel, "Destroy")
 
 	return self
 end
@@ -48,21 +49,30 @@ function Match:Start()
 	)
 	janitor:Add(
 		packets.spawnNpc.OnServerEvent:Connect(function(player: Player, data)
-			print(self.blueTeam)
 			for _, p in ipairs(self.redTeam) do
 				if p.player == player then
-					return TroopService:SpawnNpc(data, self.redTeamTroop)
+					local newTroop = TroopService:SpawnNpc(data, self.redTeamTroop)
+					janitor:Add(newTroop, "Die")
+					return newTroop
 				end
 			end
 			for _, p in ipairs(self.blueTeam) do
 				if p.player == player then
-					return TroopService:SpawnNpc(data, self.blueTeamTroop)
+					local newTroop = TroopService:SpawnNpc(data, self.blueTeamTroop)
+					janitor:Add(newTroop, "Die")
+					return newTroop
 				end
 			end
 			return
 		end),
 		"Disconnect"
 	)
+end
+
+function Match:Stop()
+	self.state = "Stopped"
+	local janitor = self.janitor :: typeof(Janitor.new())
+	janitor:Cleanup()
 end
 
 return Match

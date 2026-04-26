@@ -27,6 +27,7 @@ function BaseTroop.new(id, clientModel: Model)
 
 	self.clientModel = clientModel:Clone() :: Model
 	self.renderHeight = 6.5
+	self.dataSendRate = 0.05
 
 	return self
 end
@@ -114,7 +115,7 @@ function BaseTroop:Update(dt: number)
 
 		self.moveElapsed += dt
 
-		if self.moveElapsed > 0.05 then
+		if self.moveElapsed > self.dataSendRate then
 			packets.updateNpcPos:Fire(self.id, Vector3.new(self.position.X, self.renderHeight, self.position.Z))
 			--print(Vector3.new(self.position.X, 0, self.position.Z))
 			self.moveElapsed -= 0.05
@@ -137,6 +138,7 @@ end
 
 function BaseTroop:Die()
 	self.isAlive = false
+	packets.killNpc:Fire(self.id)
 end
 
 return BaseTroop

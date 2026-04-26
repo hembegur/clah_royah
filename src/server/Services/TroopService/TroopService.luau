@@ -27,10 +27,14 @@ function troopService:SpawnNpc(data, troopList)
 
 	newTroop:SetPosition(data.Position + Vector3.new(0, 10, 0))
 
-	for _ = 1, 20 do
-		newTroop:MoveTo(Vector3.new(random:NextInteger(-100, 100), 5, random:NextInteger(-100, 100)))
-		task.wait(5)
-	end
+	task.spawn(function()
+		for _ = 1, 20 do
+			newTroop:MoveTo(Vector3.new(random:NextInteger(-100, 100), 5, random:NextInteger(-100, 100)))
+			task.wait(5)
+		end
+	end)
+
+	return newTroop
 end
 
 function troopService:Update(dt, troopList)
