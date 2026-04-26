@@ -6,17 +6,20 @@ local npcRegistry = require(ReplicatedStorage.Shared.Modules.Core.NpcRegistry)
 
 local troopService = {} -- SERVER
 
-local troops = {}
 local troopsRegistry = {
 	SwordMan = require(ServerScriptService.Server.Classes.Troops.SwordMan),
 }
 
 local random = Random.new()
-packets.spawnNpc.OnServerEvent:Connect(function(player: Player, data)
+-- packets.spawnNpc.OnServerEvent:Connect(function(player: Player, data)
+
+-- end)
+
+function troopService:SpawnNpc(data, troopList)
 	print("spawn")
 	local newTroop = troopsRegistry[data.Name].new(npcRegistry:GetNextId(), data.Team)
 	npcRegistry:Register(newTroop)
-	table.insert(troops, newTroop)
+	table.insert(troopList, newTroop)
 
 	local newData = data -- send data back to replicate on client by adding id to the data
 	data["id"] = newTroop.id
@@ -28,16 +31,16 @@ packets.spawnNpc.OnServerEvent:Connect(function(player: Player, data)
 		newTroop:MoveTo(Vector3.new(random:NextInteger(-100, 100), 5, random:NextInteger(-100, 100)))
 		task.wait(5)
 	end
-end)
+end
 
-RunService.Heartbeat:Connect(function(dt: number)
-	for i, troop in ipairs(troops) do
+function troopService:Update(dt, troopList)
+	for i, troop in ipairs(troopList) do
 		troop:Update(dt)
 
 		if not troop.isAlive then
-			table.remove(troops, i)
+			table.remove(troopList, i)
 		end
 	end
-end)
+end
 
 return troopService -- SERVER

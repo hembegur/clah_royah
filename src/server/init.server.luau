@@ -8,8 +8,10 @@ require(services.TroopService.TroopService)
 require(ReplicatedStorage.Packages.Chrono).Start()
 
 packets.testMatch.OnServerEvent:Connect(function(player: Player)
-	local matchService = require(ServerScriptService.Server.Classes.Match.Match)
-	local newMatch = matchService.new(ReplicatedStorage.Assets.Maps.TestMap, Vector3.new(0, 6, 0))
+	local match = require(ServerScriptService.Server.Classes.Match.Match)
+	local newMatch = match.new(ReplicatedStorage.Assets.Maps.TestMap, Vector3.new(0, 6, 0))
+	newMatch:AddPlayer(player, "Blue")
+	newMatch:Start()
 end)
 
 -- local ragdollService = require(ReplicatedStorage.Shared.Services.Ragdoll.RaqdollService)

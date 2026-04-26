@@ -9,6 +9,8 @@ function InGamePlayer.new(player: Player)
 	self.tix = 0
 	self.maxTix = 10
 	self.troops = {}
+
+	return self
 end
 
 return InGamePlayer
