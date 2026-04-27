@@ -85,24 +85,41 @@ function troopPhysics:resolveCircleBox(troop, building)
 	troop.velocity += dir * overlap * 5
 end
 
-function troopPhysics:Update(troops, buildings, grid: typeof(Grid.new()))
-	for _, troop in pairs(troops) do
-		local pos = troop.position
+function troopPhysics:Update(grid)
+	local processed = {} -- prevent double unit collisions
 
-		for _, building in pairs(buildings) do
-			if troopPhysics:circleVsBox(pos, troop.hitbox.radius, building.root.Position, building.hitbox.size) then
-				troopPhysics:resolveUnitCollision(troop, building)
+	for _, cell in pairs(grid.cells) do
+		for _, obj in ipairs(cell) do
+			if obj.type ~= "Troop" then
+				continue
 			end
-		end
-	end
 
-	for _, t1 in pairs(troops) do
-		local nearby = grid:GetNearby(t1.position)
-		--print(nearby)
+			local nearby = grid:GetNearby(obj.position)
 
-		for _, t2 in pairs(nearby) do
-			if troopPhysics:circleVsCircle(t1.position, t1.hitbox.radius, t2.position, t2.hitbox.radius) then
-				troopPhysics:resolveUnitCollision(t1, t2)
+			for _, other in ipairs(nearby) do
+				if obj == other then
+					continue
+				end
+
+				--TROOP vs TROOP
+				if other.type == "Troop" then
+					local key = obj.id < other.id and obj.id .. "-" .. other.id or other.id .. "-" .. obj.id
+					if processed[key] then
+						continue
+					end
+					processed[key] = true
+
+					if self:circleVsCircle(obj.position, obj.hitbox.radius, other.position, other.hitbox.radius) then
+						self:resolveUnitCollision(obj, other)
+					end
+
+				--TROOP vs BUILDING
+				elseif other.type == "Building" then
+					print("collide build")
+					if self:circleVsBox(obj.position, obj.hitbox.radius, other.position, other.hitbox.size) then
+						self:resolveCircleBox(obj, other)
+					end
+				end
 			end
 		end
 	end

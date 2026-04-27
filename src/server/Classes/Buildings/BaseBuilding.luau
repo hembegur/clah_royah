@@ -6,6 +6,7 @@ BaseBuilding.__index = BaseBuilding
 
 function BaseBuilding.new(id)
 	local self = setmetatable({}, BaseBuilding)
+	self.type = "Building"
 
 	-- stats
 	self.id = id
@@ -22,8 +23,6 @@ function BaseBuilding.new(id)
 	self.target = nil
 	self.isAlive = true
 	self.lastAttackTime = 0
-	self.moveTarget = nil
-	self.moveElapsed = 0
 
 	self.mass = 1
 	self.velocity = Vector3.zero
@@ -34,7 +33,6 @@ function BaseBuilding.new(id)
 
 	self.renderHeight = 6.5
 	self.dataSendRate = 0.05
-	self.lastPos = self.position
 
 	return self
 end
@@ -102,37 +100,6 @@ end
 function BaseBuilding:Update(dt: number)
 	if not self.isAlive then
 		return
-	end
-
-	-- Movement
-	if self.moveTarget then
-		local dir = self.moveTarget - self.position
-		dir = Vector3.new(dir.X, 0, dir.Z)
-
-		local dist = dir.Magnitude
-
-		if dist > 0 then
-			dir = dir.Unit
-			local moveStep = self.walkSpeed * dt
-
-			if moveStep >= dist then
-				self.position = self.moveTarget
-				self.moveTarget = nil
-			else
-				self.position += dir * moveStep
-			end
-		end
-	end
-
-	self.position += self.velocity * dt
-	self.velocity *= 0.9
-
-	--Update position
-	self.moveElapsed += dt
-	if self.moveElapsed > self.dataSendRate and (self.lastPos - self.position).Magnitude > 0.1 then
-		packets.updateNpcPos:Fire(self.id, Vector3.new(self.position.X, self.renderHeight, self.position.Z))
-		self.lastPos = self.position
-		self.moveElapsed -= 0.05
 	end
 
 	-- Combat

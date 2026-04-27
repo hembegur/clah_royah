@@ -6,6 +6,7 @@ BaseTroop.__index = BaseTroop
 
 function BaseTroop.new(id)
 	local self = setmetatable({}, BaseTroop)
+	self.type = "Troop"
 
 	-- stats
 	self.id = id

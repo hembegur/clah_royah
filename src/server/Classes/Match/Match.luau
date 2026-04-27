@@ -1,3 +1,4 @@
+local PointsService = game:GetService("PointsService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -16,9 +17,16 @@ function Match.new(mapModel: Model, position: Vector3)
 	self.redTeam = {}
 	self.blueTeam = {}
 	self.state = "Preparing"
-	self.redTeamTroop = {}
-	self.blueTeamTroop = {}
+	self.ingameTroop = {
+		Red = {},
+		Blue = {},
+	}
+	self.ingameBuilding = {
+		Red = {},
+		Blue = {},
+	}
 
+	self.mapPosition = position
 	self.mapModel = mapModel:Clone()
 	self.mapModel:PivotTo(CFrame.new(position))
 	self.mapModel.Parent = workspace
@@ -30,6 +38,17 @@ function Match.new(mapModel: Model, position: Vector3)
 	return self
 end
 
+-------------------------Internal
+
+local invisWall = require(ServerScriptService.Server.Classes.Buildings.InvisibleWall)
+function Match:_buildWall(pos, size)
+	local newWall = invisWall.new(67, pos, size)
+	self.janitor:Add(newWall, "Die")
+	table.insert(self.ingameBuilding["Blue"], newWall)
+end
+
+-------------------------Plubic
+
 function Match:AddPlayer(player: Player, team)
 	local newPlayer = InGamePlayer.new(player)
 	if team == "Blue" then
@@ -40,12 +59,15 @@ function Match:AddPlayer(player: Player, team)
 end
 
 function Match:Start()
+	---------------BUILD WALLS
+	self:_buildWall(Vector3.new(0, 0, 0), Vector2.new(20, 20))
+
+	---------------START ROUND
 	self.state = "OnGoing"
 	local janitor = self.janitor :: typeof(Janitor.new())
 	janitor:Add(
 		RunService.Heartbeat:Connect(function(dt: number)
-			TroopService:Update(dt, self.redTeamTroop, self.grid)
-			TroopService:Update(dt, self.blueTeamTroop, self.grid)
+			TroopService:Update(dt, self.ingameTroop, self.grid)
 		end),
 		"Disconnect"
 	)
@@ -53,14 +75,14 @@ function Match:Start()
 		packets.spawnNpc.OnServerEvent:Connect(function(player: Player, data)
 			for _, p in ipairs(self.redTeam) do
 				if p.player == player then
-					local newTroop = TroopService:SpawnNpc(data, self.redTeamTroop)
+					local newTroop = TroopService:SpawnNpc(data, self.ingameTroop["Red"])
 					janitor:Add(newTroop, "Die")
 					return newTroop
 				end
 			end
 			for _, p in ipairs(self.blueTeam) do
 				if p.player == player then
-					local newTroop = TroopService:SpawnNpc(data, self.blueTeamTroop)
+					local newTroop = TroopService:SpawnNpc(data, self.ingameTroop["Blue"])
 					janitor:Add(newTroop, "Die")
 					return newTroop
 				end
