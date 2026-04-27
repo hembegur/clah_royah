@@ -42,7 +42,7 @@ end
 
 local invisWall = require(ServerScriptService.Server.Classes.Buildings.InvisibleWall)
 function Match:_buildWall(pos, size)
-	local newWall = invisWall.new(67, pos, size)
+	local newWall = invisWall.new(6767, pos, size)
 	self.janitor:Add(newWall, "Die")
 	table.insert(self.ingameBuilding["Blue"], newWall)
 end
@@ -67,7 +67,7 @@ function Match:Start()
 	local janitor = self.janitor :: typeof(Janitor.new())
 	janitor:Add(
 		RunService.Heartbeat:Connect(function(dt: number)
-			TroopService:Update(dt, self.ingameTroop, self.grid)
+			TroopService:Update(dt, self.ingameTroop, self.ingameBuilding, self.grid)
 		end),
 		"Disconnect"
 	)

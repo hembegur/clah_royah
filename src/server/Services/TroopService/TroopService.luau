@@ -39,13 +39,23 @@ function troopService:SpawnNpc(data, troopList)
 	return newTroop
 end
 
-function troopService:Update(dt, troopList, grid: typeof(Grid.new()))
+function troopService:Update(dt, troopList, buildingList, grid: typeof(Grid.new()))
 	for _, team in pairs(troopList) do
 		for i, troop in pairs(team) do
 			troop:Update(dt)
 			grid:Update(troop, troop.position)
 
 			if not troop.isAlive then
+				table.remove(team, i)
+			end
+		end
+	end
+	for _, team in pairs(buildingList) do
+		for i, build in pairs(team) do
+			build:Update(dt)
+			grid:Update(build, build.position)
+
+			if not build.isAlive then
 				table.remove(team, i)
 			end
 		end

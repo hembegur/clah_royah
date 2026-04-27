@@ -12,10 +12,9 @@ function BaseBuilding.new(id)
 	self.id = id
 	self.maxHp = 100
 	self.hp = self.maxHp
-	self.damage = 10
+	self.damage = 0
 	self.attackCooldown = 1
-	self.range = 5
-	self.walkSpeed = 10
+	self.range = 0
 
 	-- state
 	self.position = Vector3.new(0, 0, 0)

@@ -115,7 +115,6 @@ function troopPhysics:Update(grid)
 
 				--TROOP vs BUILDING
 				elseif other.type == "Building" then
-					print("collide build")
 					if self:circleVsBox(obj.position, obj.hitbox.radius, other.position, other.hitbox.size) then
 						self:resolveCircleBox(obj, other)
 					end
