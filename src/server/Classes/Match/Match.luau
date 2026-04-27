@@ -22,7 +22,7 @@ function Match.new(mapModel: Model, position: Vector3)
 	self.mapModel = mapModel:Clone()
 	self.mapModel:PivotTo(CFrame.new(position))
 	self.mapModel.Parent = workspace
-	self.grid = Grid.new(12)
+	self.grid = Grid.new(8)
 
 	self.janitor = Janitor.new()
 	self.janitor:Add(self.mapModel, "Destroy")
