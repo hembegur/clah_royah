@@ -35,19 +35,23 @@ function troopPhysics:resolveUnitCollision(t1, t2)
 
 	local dir = diff.Unit
 
-	-- push both
-	t1.position += dir * (overlap * 0.5)
-	t2.position -= dir * (overlap * 0.5)
+	local totalMass = t1.mass + t2.mass
+	local t1Move = (t2.mass / totalMass)
+	local t2Move = (t1.mass / totalMass)
 
-	-- optional: velocity response (THIS is the smooth knockback)
-	t1.velocity += dir * overlap * 5
-	t2.velocity -= dir * overlap * 5
+	-- accumulate correction (use your correction system)
+	t1.correction = (t1.correction or Vector3.zero) + dir * overlap * t1Move
+	t2.correction = (t2.correction or Vector3.zero) - dir * overlap * t2Move
+
+	-- velocity response (also mass-based)
+	local force = overlap * 5
+	t1.velocity += dir * force * t1Move
+	t2.velocity -= dir * force * t2Move
 end
 
 function troopPhysics:Update(troops, buildings)
-	for i, troop in pairs(troops) do
+	for _, troop in pairs(troops) do
 		local pos = troop.position
-		--print(i, pos)
 
 		for _, building in pairs(buildings) do
 			if troopPhysics:circleVsBox(pos, troop.hitbox.radius, building.root.Position, building.hitbox.size) then

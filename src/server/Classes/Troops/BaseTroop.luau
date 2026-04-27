@@ -25,10 +25,11 @@ function BaseTroop.new(id)
 	self.moveTarget = nil
 	self.moveElapsed = 0
 
+	self.mass = 1
 	self.velocity = Vector3.zero
 	self.hitbox = {
 		type = "circle",
-		radius = 2,
+		radius = 1.5,
 	}
 
 	self.renderHeight = 6.5
@@ -37,7 +38,10 @@ function BaseTroop.new(id)
 
 	return self
 end
-
+-------------------SETTERS
+function BaseTroop:SetHitBox(newHitbox)
+	self.hitbox = newHitbox
+end
 -------------------MOVEMENT LOGIC
 function BaseTroop:SetPosition(position: Vector3)
 	self.position = position
