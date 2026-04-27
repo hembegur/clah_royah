@@ -6,7 +6,7 @@ local SwordMan = setmetatable({}, BaseTroop)
 SwordMan.__index = SwordMan
 
 function SwordMan.new(id, team)
-	local self = setmetatable(BaseTroop.new(id, assets.Troops.DefaultRig), SwordMan)
+	local self = setmetatable(BaseTroop.new(id), SwordMan)
 
 	self.team = team
 	self.maxHp = 100

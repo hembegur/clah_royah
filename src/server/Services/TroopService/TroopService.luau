@@ -3,6 +3,7 @@ local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local npcRegistry = require(ReplicatedStorage.Shared.Modules.Core.NpcRegistry)
+local troopPhysics = require(script.Parent.TroopPhysics)
 
 local troopService = {} -- SERVER
 
@@ -29,7 +30,7 @@ function troopService:SpawnNpc(data, troopList)
 
 	task.spawn(function()
 		for _ = 1, 20 do
-			newTroop:MoveTo(Vector3.new(random:NextInteger(-100, 100), 5, random:NextInteger(-100, 100)))
+			newTroop:MoveTo(Vector3.new(random:NextInteger(-30, 30), 10, random:NextInteger(-30, 30)))
 			task.wait(5)
 		end
 	end)
@@ -45,6 +46,7 @@ function troopService:Update(dt, troopList)
 			table.remove(troopList, i)
 		end
 	end
+	troopPhysics:Update(troopList, {})
 end
 
 return troopService -- SERVER

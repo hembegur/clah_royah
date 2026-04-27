@@ -38,7 +38,7 @@ packets.updateNpcPos.OnClientEvent:Connect(function(id: number, position: Vector
 		return
 	end
 	SwordMan.Npcs[id]["targetPos"] = position
-		+ Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-1, 1), random:NextNumber(-1, 1))
+	--+ Vector3.new(random:NextNumber(-1, 1), random:NextNumber(-1, 1), random:NextNumber(-1, 1))
 end)
 
 packets.updateNpcDir.OnClientEvent:Connect(function(id: number, dir: Vector3)

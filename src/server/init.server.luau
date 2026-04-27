@@ -12,7 +12,7 @@ packets.testMatch.OnServerEvent:Connect(function(player: Player)
 	local newMatch = match.new(ReplicatedStorage.Assets.Maps.TestMap, Vector3.new(0, 6, 0))
 	newMatch:AddPlayer(player, "Blue")
 	newMatch:Start()
-	task.wait(5)
+	task.wait(50)
 	newMatch:Stop()
 end)
 

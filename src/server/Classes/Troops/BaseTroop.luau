@@ -4,7 +4,7 @@ local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local BaseTroop = {}
 BaseTroop.__index = BaseTroop
 
-function BaseTroop.new(id, clientModel: Model)
+function BaseTroop.new(id)
 	local self = setmetatable({}, BaseTroop)
 
 	-- stats
@@ -25,7 +25,12 @@ function BaseTroop.new(id, clientModel: Model)
 	self.moveTarget = nil
 	self.moveElapsed = 0
 
-	self.clientModel = clientModel:Clone() :: Model
+	self.velocity = Vector3.zero
+	self.hitbox = {
+		type = "circle",
+		radius = 3,
+	}
+
 	self.renderHeight = 6.5
 	self.dataSendRate = 0.05
 
