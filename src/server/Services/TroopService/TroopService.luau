@@ -30,9 +30,8 @@ function troopService:SpawnNpc(data, troopList)
 	newTroop:SetPosition(data.Position + Vector3.new(0, 10, 0))
 
 	task.spawn(function() --test move
-		newTroop:MoveTo(Vector3.new(20, 10, 20))
 		for _ = 1, 20 do
-			--newTroop:MoveTo(Vector3.new(random:NextInteger(-30, 30), 10, random:NextInteger(-30, 30)))
+			newTroop:MoveTo(Vector3.new(random:NextInteger(-30, 30), 10, random:NextInteger(-30, 30)))
 			task.wait(5)
 		end
 	end)

@@ -27,7 +27,8 @@ function troopPhysics:resolveUnitCollision(t1, t2)
 
 	local dist = diff.Magnitude
 	if dist == 0 then
-		return
+		diff = Vector3.new(math.random(), 0, math.random()).Unit
+		dist = 0.001
 	end
 
 	local overlap = (t1.hitbox.radius + t2.hitbox.radius) - dist
@@ -51,13 +52,46 @@ function troopPhysics:resolveUnitCollision(t1, t2)
 	t2.velocity -= dir * force * t2Move
 end
 
+function troopPhysics:resolveCircleBox(troop, building)
+	local pos = troop.position
+	local boxPos = building.position
+	local size = building.hitbox.size -- Vector2 (X, Z)
+
+	local half = size / 2
+
+	-- closest point on box
+	local closestX = math.clamp(pos.X, boxPos.X - half.X, boxPos.X + half.X)
+	local closestZ = math.clamp(pos.Z, boxPos.Z - half.Y, boxPos.Z + half.Y)
+
+	local closest = Vector3.new(closestX, pos.Y, closestZ)
+
+	local diff = pos - closest
+	diff = Vector3.new(diff.X, 0, diff.Z)
+
+	local dist = diff.Magnitude
+
+	if dist == 0 then
+		diff = Vector3.new(math.random(), 0, math.random()).Unit
+		dist = 0.001
+	end
+
+	local overlap = troop.hitbox.radius - dist
+	if overlap <= 0 then
+		return
+	end
+
+	local dir = diff.Unit
+
+	troop.velocity += dir * overlap * 5
+end
+
 function troopPhysics:Update(troops, buildings, grid: typeof(Grid.new()))
 	for _, troop in pairs(troops) do
 		local pos = troop.position
 
 		for _, building in pairs(buildings) do
 			if troopPhysics:circleVsBox(pos, troop.hitbox.radius, building.root.Position, building.hitbox.size) then
-				print("hit wall")
+				troopPhysics:resolveUnitCollision(troop, building)
 			end
 		end
 	end
