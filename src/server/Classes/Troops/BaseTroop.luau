@@ -28,11 +28,12 @@ function BaseTroop.new(id)
 	self.velocity = Vector3.zero
 	self.hitbox = {
 		type = "circle",
-		radius = 3,
+		radius = 2,
 	}
 
 	self.renderHeight = 6.5
 	self.dataSendRate = 0.05
+	self.lastPos = self.position
 
 	return self
 end
@@ -117,14 +118,17 @@ function BaseTroop:Update(dt: number)
 				self.position += dir * moveStep
 			end
 		end
+	end
 
-		self.moveElapsed += dt
+	self.position += self.velocity * dt
+	self.velocity *= 0.9
 
-		if self.moveElapsed > self.dataSendRate then
-			packets.updateNpcPos:Fire(self.id, Vector3.new(self.position.X, self.renderHeight, self.position.Z))
-			--print(Vector3.new(self.position.X, 0, self.position.Z))
-			self.moveElapsed -= 0.05
-		end
+	--Update position
+	self.moveElapsed += dt
+	if self.moveElapsed > self.dataSendRate and (self.lastPos - self.position).Magnitude > 0.1 then
+		packets.updateNpcPos:Fire(self.id, Vector3.new(self.position.X, self.renderHeight, self.position.Z))
+		self.lastPos = self.position
+		self.moveElapsed -= 0.05
 	end
 
 	-- Combat
