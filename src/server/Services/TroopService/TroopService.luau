@@ -4,6 +4,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local npcRegistry = require(ReplicatedStorage.Shared.Modules.Core.NpcRegistry)
 local troopPhysics = require(script.Parent.TroopPhysics)
+local Grid = require(script.Parent.Grid)
 
 local troopService = {} -- SERVER
 
@@ -29,9 +30,9 @@ function troopService:SpawnNpc(data, troopList)
 	newTroop:SetPosition(data.Position + Vector3.new(0, 10, 0))
 
 	task.spawn(function() --test move
-		--newTroop:MoveTo(Vector3.new(20, 10, 20))
+		newTroop:MoveTo(Vector3.new(20, 10, 20))
 		for _ = 1, 20 do
-			newTroop:MoveTo(Vector3.new(random:NextInteger(-30, 30), 10, random:NextInteger(-30, 30)))
+			--newTroop:MoveTo(Vector3.new(random:NextInteger(-30, 30), 10, random:NextInteger(-30, 30)))
 			task.wait(5)
 		end
 	end)
@@ -39,15 +40,16 @@ function troopService:SpawnNpc(data, troopList)
 	return newTroop
 end
 
-function troopService:Update(dt, troopList)
+function troopService:Update(dt, troopList, grid: typeof(Grid.new()))
 	for i, troop in ipairs(troopList) do
 		troop:Update(dt)
+		grid:Update(troop, troop.position)
 
 		if not troop.isAlive then
 			table.remove(troopList, i)
 		end
 	end
-	troopPhysics:Update(troopList, {})
+	troopPhysics:Update(troopList, {}, grid)
 end
 
 return troopService -- SERVER

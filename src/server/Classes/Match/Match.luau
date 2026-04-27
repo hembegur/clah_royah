@@ -5,6 +5,7 @@ local Janitor = require(ReplicatedStorage.Packages.Janitor)
 local InGamePlayer = require(script.Parent.InGamePlayer)
 local TroopService = require(ServerScriptService.Server.Services.TroopService.TroopService)
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
+local Grid = require(ServerScriptService.Server.Services.TroopService.Grid)
 
 local Match = {}
 Match.__index = Match
@@ -21,6 +22,7 @@ function Match.new(mapModel: Model, position: Vector3)
 	self.mapModel = mapModel:Clone()
 	self.mapModel:PivotTo(CFrame.new(position))
 	self.mapModel.Parent = workspace
+	self.grid = Grid.new(12)
 
 	self.janitor = Janitor.new()
 	self.janitor:Add(self.mapModel, "Destroy")
@@ -42,8 +44,8 @@ function Match:Start()
 	local janitor = self.janitor :: typeof(Janitor.new())
 	janitor:Add(
 		RunService.Heartbeat:Connect(function(dt: number)
-			TroopService:Update(dt, self.redTeamTroop)
-			TroopService:Update(dt, self.blueTeamTroop)
+			TroopService:Update(dt, self.redTeamTroop, self.grid)
+			TroopService:Update(dt, self.blueTeamTroop, self.grid)
 		end),
 		"Disconnect"
 	)

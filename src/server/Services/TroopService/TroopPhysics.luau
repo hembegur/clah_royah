@@ -1,3 +1,5 @@
+local Grid = require(script.Parent.Grid)
+
 local troopPhysics = {}
 
 function troopPhysics:circleVsCircle(p1, r1, p2, r2)
@@ -49,7 +51,7 @@ function troopPhysics:resolveUnitCollision(t1, t2)
 	t2.velocity -= dir * force * t2Move
 end
 
-function troopPhysics:Update(troops, buildings)
+function troopPhysics:Update(troops, buildings, grid: typeof(Grid.new()))
 	for _, troop in pairs(troops) do
 		local pos = troop.position
 
@@ -60,11 +62,11 @@ function troopPhysics:Update(troops, buildings)
 		end
 	end
 
-	for i = 1, #troops do
-		for j = i + 1, #troops do
-			local t1 = troops[i]
-			local t2 = troops[j]
+	for _, t1 in pairs(troops) do
+		local nearby = grid:GetNearby(t1.position)
+		--print(nearby)
 
+		for _, t2 in pairs(nearby) do
 			if troopPhysics:circleVsCircle(t1.position, t1.hitbox.radius, t2.position, t2.hitbox.radius) then
 				troopPhysics:resolveUnitCollision(t1, t2)
 			end
