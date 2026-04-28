@@ -47,6 +47,24 @@ function Match:_buildWall(pos, size)
 	table.insert(self.ingameBuilding["Blue"], newWall)
 end
 
+function Match:_setupWalls()
+	local mapPos = self.mapPosition
+	--Bridge
+	self:_buildWall(mapPos, Vector2.new(8, 32))
+	self:_buildWall(mapPos + Vector3.new(0, 0, 32), Vector2.new(8, 8))
+	self:_buildWall(mapPos + Vector3.new(0, 0, -32), Vector2.new(8, 8))
+	--Outside walls
+	self:_buildWall(mapPos + Vector3.new(0, 0, 42), Vector2.new(128, 12))
+	self:_buildWall(mapPos + Vector3.new(0, 0, -42), Vector2.new(128, 12))
+
+	self:_buildWall(mapPos + Vector3.new(64 + 6, 0, 0), Vector2.new(12, 72))
+	self:_buildWall(mapPos + Vector3.new(60 + 6, 0, -24), Vector2.new(12, 24))
+	self:_buildWall(mapPos + Vector3.new(60 + 6, 0, 24), Vector2.new(12, 24))
+	self:_buildWall(mapPos + Vector3.new(-64 - 6, 0, 0), Vector2.new(12, 72))
+	self:_buildWall(mapPos + Vector3.new(-60 - 6, 0, -24), Vector2.new(12, 24))
+	self:_buildWall(mapPos + Vector3.new(-60 - 6, 0, 24), Vector2.new(12, 24))
+end
+
 -------------------------Plubic
 
 function Match:AddPlayer(player: Player, team)
@@ -60,7 +78,7 @@ end
 
 function Match:Start()
 	---------------BUILD WALLS
-	self:_buildWall(Vector3.new(0, 0, 0), Vector2.new(30, 30))
+	self:_setupWalls()
 
 	---------------START ROUND
 	self.state = "OnGoing"
