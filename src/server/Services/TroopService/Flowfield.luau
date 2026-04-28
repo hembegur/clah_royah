@@ -135,20 +135,46 @@ function FlowField:BuildDirection()
 			{ cx - 1, cz, Vector3.new(-1, 0, 0) },
 			{ cx, cz + 1, Vector3.new(0, 0, 1) },
 			{ cx, cz - 1, Vector3.new(0, 0, -1) },
+
+			-- diagonals
+			{ cx + 1, cz + 1, Vector3.new(1, 0, 1) },
+			{ cx - 1, cz - 1, Vector3.new(-1, 0, -1) },
+			{ cx - 1, cz + 1, Vector3.new(-1, 0, 1) },
+			{ cx + 1, cz - 1, Vector3.new(1, 0, -1) },
 		}) do
-			local nk = key(n[1], n[2])
+			local nx, nz = n[1], n[2]
+			local nk = key(nx, nz)
 			local nCost = self.cost[nk]
 
-			if nCost and nCost < bestCost then
+			if not nCost then
+				continue
+			end
+
+			local isDiagonal = (nx ~= cx and nz ~= cz)
+
+			-- prevent corner cutting
+			if isDiagonal then
+				local k1 = key(nx, cz)
+				local k2 = key(cx, nz)
+
+				if self.blocked[k1] or self.blocked[k2] then
+					continue
+				end
+			end
+
+			if nCost < bestCost then
 				bestCost = nCost
 				bestDir = n[3]
 			end
 		end
 
+		-- normalize so diagonals aren't faster
+		if bestDir.Magnitude > 0 then
+			bestDir = bestDir.Unit
+		end
+
 		self.dir[k] = bestDir
 	end
-
-	--print(self.dir)
 end
 
 function FlowField:UpdateFromBlocked(changedKeys)
