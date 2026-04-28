@@ -2,11 +2,13 @@ local PointsService = game:GetService("PointsService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Flowfield = require("../../Services/TroopService/Flowfield")
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
 local InGamePlayer = require(script.Parent.InGamePlayer)
 local TroopService = require(ServerScriptService.Server.Services.TroopService.TroopService)
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local Grid = require(ServerScriptService.Server.Services.TroopService.Grid)
+local FLowfield = require(ServerScriptService.Server.Services.TroopService.Flowfield)
 
 local Match = {}
 Match.__index = Match
@@ -31,6 +33,7 @@ function Match.new(mapModel: Model, position: Vector3)
 	self.mapModel:PivotTo(CFrame.new(position))
 	self.mapModel.Parent = workspace
 	self.grid = Grid.new(4)
+	self.flowfield = FLowfield.new()
 
 	self.janitor = Janitor.new()
 	self.janitor:Add(self.mapModel, "Destroy")
@@ -77,6 +80,11 @@ function Match:AddPlayer(player: Player, team)
 end
 
 function Match:Start()
+	---------------BUILD FLOWFIELD
+	local flowfield = self.flowfield :: typeof(Flowfield.new())
+	flowfield:BuildFromTargets({ "3,3", "10,20" })
+	flowfield:BuildDirection()
+
 	---------------BUILD WALLS
 	self:_setupWalls()
 

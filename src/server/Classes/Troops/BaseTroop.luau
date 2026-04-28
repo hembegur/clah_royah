@@ -106,6 +106,14 @@ function BaseTroop:Update(dt: number)
 	end
 
 	-- Movement
+
+	-- local cx = math.floor(pos.X / cellSize)
+	-- local cz = math.floor(pos.Z / cellSize)
+
+	-- local dir = flow.dir[key(cx, cz)] or Vector3.zero
+
+	-- troop.velocity += dir * troop.speed
+
 	if self.moveTarget then
 		local dir = self.moveTarget - self.position
 		dir = Vector3.new(dir.X, 0, dir.Z)

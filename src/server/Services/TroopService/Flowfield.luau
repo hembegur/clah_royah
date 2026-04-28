@@ -8,6 +8,11 @@ function FlowField.new()
 	self.dir = {} -- direction vector per cell
 	self.blocked = {} -- walls/buildings
 
+	self.minX = 1
+	self.maxX = 32
+	self.minZ = 1
+	self.maxZ = 18
+
 	return self
 end
 
@@ -45,6 +50,56 @@ function FlowField:Build(targetCell)
 				self.cost[k] = self.cost[key(cx, cz)] + 1
 				table.insert(queue, n)
 			end
+		end
+	end
+end
+
+function FlowField:BuildFromTargets(targetKeys)
+	self.cost = {}
+	local queue = {}
+
+	for _, k in ipairs(targetKeys) do
+		self.cost[k] = 0
+		table.insert(queue, k)
+	end
+
+	while #queue > 0 do
+		local k = table.remove(queue, 1)
+
+		local x, z = k:match("([^,]+),([^,]+)")
+		x, z = tonumber(x), tonumber(z)
+
+		for _, offset in ipairs({
+			{ 1, 0 },
+			{ -1, 0 },
+			{ 0, 1 },
+			{ 0, -1 },
+		}) do
+			local nx = x + offset[1]
+			local nz = z + offset[2]
+
+			--LIMIT AREA
+			if nx < self.minX or nx > self.maxX then
+				continue
+			end
+			if nz < self.minZ or nz > self.maxZ then
+				continue
+			end
+
+			local nk = nx .. "," .. nz
+
+			-- BLOCKED
+			if self.blocked[nk] then
+				continue
+			end
+
+			--VISITED
+			if self.cost[nk] then
+				continue
+			end
+
+			self.cost[nk] = self.cost[k] + 1
+			table.insert(queue, nk)
 		end
 	end
 end
