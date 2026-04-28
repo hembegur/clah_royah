@@ -35,10 +35,12 @@ function Grid:_getKeysForObject(obj)
 		error("Unknown hitbox type")
 	end
 
-	local minCX = math.floor(minX / self.cellSize)
-	local maxCX = math.floor(maxX / self.cellSize)
-	local minCZ = math.floor(minZ / self.cellSize)
-	local maxCZ = math.floor(maxZ / self.cellSize)
+	local epsilon = 1e-4
+
+	local minCX = math.floor((minX + epsilon) / self.cellSize)
+	local maxCX = math.floor((maxX - epsilon) / self.cellSize)
+	local minCZ = math.floor((minZ + epsilon) / self.cellSize)
+	local maxCZ = math.floor((maxZ - epsilon) / self.cellSize)
 
 	local keys = {}
 

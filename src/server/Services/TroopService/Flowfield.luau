@@ -1,17 +1,18 @@
 local FlowField = {}
 
 FlowField.__index = FlowField
-function FlowField.new()
+function FlowField.new(cellsize)
 	local self = setmetatable({}, FlowField)
 
 	self.cost = {} -- distance from target
 	self.dir = {} -- direction vector per cell
 	self.blocked = {} -- walls/buildings
 
-	self.minX = 1
-	self.maxX = 32
-	self.minZ = 1
-	self.maxZ = 18
+	self.minX = -16
+	self.maxX = 16
+	self.minZ = -10
+	self.maxZ = 10
+	self.cellsize = cellsize
 
 	return self
 end
@@ -22,6 +23,7 @@ end
 
 function FlowField:SetBlockedFromBuilding(building, grid)
 	local keys = grid:_getKeysForObject(building)
+	--print(keys)
 
 	for _, k in ipairs(keys) do
 		self.blocked[k] = true
@@ -74,11 +76,14 @@ function FlowField:BuildFromTargets(targetKeys)
 			{ -1, 0 },
 			{ 0, 1 },
 			{ 0, -1 },
+			{ 1, 1 },
+			{ -1, -1 },
+			{ -1, 1 },
+			{ 1, -1 },
 		}) do
 			local nx = x + offset[1]
 			local nz = z + offset[2]
 
-			--LIMIT AREA
 			if nx < self.minX or nx > self.maxX then
 				continue
 			end
@@ -88,17 +93,28 @@ function FlowField:BuildFromTargets(targetKeys)
 
 			local nk = nx .. "," .. nz
 
-			-- BLOCKED
 			if self.blocked[nk] then
 				continue
 			end
-
-			--VISITED
 			if self.cost[nk] then
 				continue
 			end
 
-			self.cost[nk] = self.cost[k] + 1
+			local isDiagonal = offset[1] ~= 0 and offset[2] ~= 0
+
+			-- prevent corner cutting
+			if isDiagonal then
+				local k1 = (x + offset[1]) .. "," .. z
+				local k2 = x .. "," .. (z + offset[2])
+
+				if self.blocked[k1] or self.blocked[k2] then
+					continue
+				end
+			end
+
+			local stepCost = isDiagonal and 1.414 or 1
+
+			self.cost[nk] = self.cost[k] + stepCost
 			table.insert(queue, nk)
 		end
 	end
@@ -131,6 +147,8 @@ function FlowField:BuildDirection()
 
 		self.dir[k] = bestDir
 	end
+
+	--print(self.dir)
 end
 
 function FlowField:UpdateFromBlocked(changedKeys)

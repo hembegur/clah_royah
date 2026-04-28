@@ -9,6 +9,7 @@ local TroopService = require(ServerScriptService.Server.Services.TroopService.Tr
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local Grid = require(ServerScriptService.Server.Services.TroopService.Grid)
 local FLowfield = require(ServerScriptService.Server.Services.TroopService.Flowfield)
+local NpcRegistry = require(ReplicatedStorage.Shared.Modules.Core.NpcRegistry)
 
 local Match = {}
 Match.__index = Match
@@ -33,7 +34,7 @@ function Match.new(mapModel: Model, position: Vector3)
 	self.mapModel:PivotTo(CFrame.new(position))
 	self.mapModel.Parent = workspace
 	self.grid = Grid.new(4)
-	self.flowfield = FLowfield.new()
+	self.flowfield = FLowfield.new(4) -- cellsize
 
 	self.janitor = Janitor.new()
 	self.janitor:Add(self.mapModel, "Destroy")
@@ -45,9 +46,12 @@ end
 
 local invisWall = require(ServerScriptService.Server.Classes.Buildings.InvisibleWall)
 function Match:_buildWall(pos, size)
-	local newWall = invisWall.new(6767, pos, size)
+	local flowfield = self.flowfield :: typeof(Flowfield.new())
+
+	local newWall = invisWall.new(NpcRegistry:GetNextId(), pos, size)
 	self.janitor:Add(newWall, "Die")
 	table.insert(self.ingameBuilding["Blue"], newWall)
+	flowfield:SetBlockedFromBuilding(newWall, self.grid)
 end
 
 function Match:_setupWalls()
@@ -80,20 +84,20 @@ function Match:AddPlayer(player: Player, team)
 end
 
 function Match:Start()
-	---------------BUILD FLOWFIELD
-	local flowfield = self.flowfield :: typeof(Flowfield.new())
-	flowfield:BuildFromTargets({ "3,3", "10,20" })
-	flowfield:BuildDirection()
-
 	---------------BUILD WALLS
 	self:_setupWalls()
+
+	---------------BUILD FLOWFIELD
+	local flowfield = self.flowfield :: typeof(Flowfield.new())
+	flowfield:BuildFromTargets({ "-5,0" })
+	flowfield:BuildDirection()
 
 	---------------START ROUND
 	self.state = "OnGoing"
 	local janitor = self.janitor :: typeof(Janitor.new())
 	janitor:Add(
 		RunService.Heartbeat:Connect(function(dt: number)
-			TroopService:Update(dt, self.ingameTroop, self.ingameBuilding, self.grid)
+			TroopService:Update(dt, self.ingameTroop, self.ingameBuilding, self.grid, self.flowfield)
 		end),
 		"Disconnect"
 	)

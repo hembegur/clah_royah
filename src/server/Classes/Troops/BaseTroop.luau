@@ -1,5 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
+local Flowfield = require(ServerScriptService.Server.Services.TroopService.Flowfield)
 
 local BaseTroop = {}
 BaseTroop.__index = BaseTroop
@@ -100,38 +102,45 @@ function BaseTroop:SetTarget(target)
 end
 
 -------------------UPDATE
-function BaseTroop:Update(dt: number)
+function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()))
 	if not self.isAlive then
 		return
 	end
 
 	-- Movement
 
-	-- local cx = math.floor(pos.X / cellSize)
-	-- local cz = math.floor(pos.Z / cellSize)
+	local cx = math.floor(self.position.X / flowfield.cellsize) --replace with cell size later
+	local cz = math.floor(self.position.Z / flowfield.cellsize)
 
-	-- local dir = flow.dir[key(cx, cz)] or Vector3.zero
+	local k = cx .. "," .. cz
+	local dir = flowfield.dir[k]
+	--print(k, dir)
 
-	-- troop.velocity += dir * troop.speed
-
-	if self.moveTarget then
-		local dir = self.moveTarget - self.position
-		dir = Vector3.new(dir.X, 0, dir.Z)
-
-		local dist = dir.Magnitude
-
-		if dist > 0 then
-			dir = dir.Unit
-			local moveStep = self.walkSpeed * dt
-
-			if moveStep >= dist then
-				self.position = self.moveTarget
-				self.moveTarget = nil
-			else
-				self.position += dir * moveStep
-			end
-		end
+	if dir then
+		local moveStep = self.walkSpeed * dt
+		self.position += dir * moveStep
 	end
+
+	-- if self.moveTarget then
+	-- 	local dir = self.moveTarget - self.position
+	-- 	dir = Vector3.new(dir.X, 0, dir.Z)
+
+	-- 	local dist = dir.Magnitude
+
+	-- 	if dist > 0 then
+	-- 		dir = dir.Unit
+	-- 		local moveStep = self.walkSpeed * dt
+
+	-- 		if moveStep >= dist then
+	-- 			self.position = self.moveTarget
+	-- 			self.moveTarget = nil
+	-- 		else
+	-- 			self.position += dir * moveStep
+	-- 		end
+	-- 	end
+	-- else
+	-- 	--niger
+	-- end
 
 	self.position += self.velocity * dt
 	self.velocity *= 0.9
@@ -152,9 +161,8 @@ function BaseTroop:Update(dt: number)
 	local dist = (self.position - self.target.position).Magnitude
 
 	if dist <= self.range then
+		self.velocity *= 0.5 -- slow down / stop
 		self:Attack(self.target)
-	else
-		self:MoveTo(self.target.position)
 	end
 end
 
