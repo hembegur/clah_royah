@@ -9,16 +9,15 @@ function troopPhysics:circleVsCircle(p1, r1, p2, r2)
 end
 
 function troopPhysics:circleVsBox(circlePos, radius, boxPos, boxSize)
-	local circlePosN = Vector3.new(circlePos.x, 0, circlePos.z)
-	local boxPosN = Vector3.new(boxPos.x, 0, boxPos.z)
 	local half = boxSize / 2
 
-	local closestX = math.clamp(circlePosN.X, boxPosN.X - half.X, boxPosN.X + half.X)
-	local closestZ = math.clamp(circlePosN.Z, boxPosN.Z - half.Y, boxPosN.Z + half.Y)
+	local dx = math.clamp(circlePos.X, boxPos.X - half.X, boxPos.X + half.X)
+	local dz = math.clamp(circlePos.Z, boxPos.Z - half.Y, boxPos.Z + half.Y)
 
-	local closestPoint = Vector3.new(closestX, circlePosN.Y, closestZ)
+	local diffX = circlePos.X - dx
+	local diffZ = circlePos.Z - dz
 
-	return (circlePosN - closestPoint).Magnitude <= radius
+	return (diffX * diffX + diffZ * diffZ) <= (radius * radius)
 end
 
 function troopPhysics:resolveUnitCollision(t1, t2)
@@ -26,6 +25,7 @@ function troopPhysics:resolveUnitCollision(t1, t2)
 	diff = Vector3.new(diff.X, 0, diff.Z)
 
 	local dist = diff.Magnitude
+
 	if dist == 0 then
 		diff = Vector3.new(math.random(), 0, math.random()).Unit
 		dist = 0.001
@@ -70,9 +70,22 @@ function troopPhysics:resolveCircleBox(troop, building)
 
 	local dist = diff.Magnitude
 
-	if dist == 0 then
-		diff = Vector3.new(math.random(), 0, math.random()).Unit
-		dist = 0.001
+	if dist < 1e-4 then -- Inside box
+		local dx = pos.X - boxPos.X
+		local dz = pos.Z - boxPos.Z
+
+		local overlapX = half.X + troop.hitbox.radius - math.abs(dx)
+		local overlapZ = half.Y + troop.hitbox.radius - math.abs(dz)
+
+		if overlapX < overlapZ then
+			local dir = Vector3.new(dx > 0 and 1 or -1, 0, 0)
+			troop.velocity += dir * overlapX * 5
+		else
+			local dir = Vector3.new(0, 0, dz > 0 and 1 or -1)
+			troop.velocity += dir * overlapZ * 5
+		end
+
+		return
 	end
 
 	local overlap = troop.hitbox.radius - dist
@@ -116,6 +129,7 @@ function troopPhysics:Update(grid)
 				--TROOP vs BUILDING
 				elseif other.type == "Building" then
 					if self:circleVsBox(obj.position, obj.hitbox.radius, other.position, other.hitbox.size) then
+						--print("collide")
 						self:resolveCircleBox(obj, other)
 					end
 				end

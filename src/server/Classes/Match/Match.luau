@@ -60,7 +60,7 @@ end
 
 function Match:Start()
 	---------------BUILD WALLS
-	self:_buildWall(Vector3.new(0, 0, 0), Vector2.new(20, 20))
+	self:_buildWall(Vector3.new(0, 0, 0), Vector2.new(30, 30))
 
 	---------------START ROUND
 	self.state = "OnGoing"

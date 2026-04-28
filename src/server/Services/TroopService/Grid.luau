@@ -1,6 +1,10 @@
 local Grid = {}
 Grid.__index = Grid
 
+local function getKey(x, z)
+	return x .. "," .. z
+end
+
 function Grid.new(cellSize)
 	return setmetatable({
 		cellSize = cellSize,
@@ -8,60 +12,126 @@ function Grid.new(cellSize)
 	}, Grid)
 end
 
-local function getKey(x, z)
-	return x .. "," .. z
-end
-
-function Grid:WorldToCell(pos: Vector3)
+-- Convert world → cell
+function Grid:WorldToCell(pos)
 	return math.floor(pos.X / self.cellSize), math.floor(pos.Z / self.cellSize)
 end
 
-function Grid:Add(obj, pos)
-	local cx, cz = self:WorldToCell(pos)
-	local key = getKey(cx, cz)
+-- Get all cells an object occupies
+function Grid:_getKeysForObject(obj)
+	local pos = obj.position
 
-	self.cells[key] = self.cells[key] or {}
-	table.insert(self.cells[key], obj)
+	local minX, maxX, minZ, maxZ
 
-	obj._cell = key
+	if obj.hitbox.type == "circle" then
+		local r = obj.hitbox.radius
+		minX, maxX = pos.X - r, pos.X + r
+		minZ, maxZ = pos.Z - r, pos.Z + r
+	elseif obj.hitbox.type == "box" then
+		local half = obj.hitbox.size / 2
+		minX, maxX = pos.X - half.X, pos.X + half.X
+		minZ, maxZ = pos.Z - half.Y, pos.Z + half.Y
+	else
+		error("Unknown hitbox type")
+	end
+
+	local minCX = math.floor(minX / self.cellSize)
+	local maxCX = math.floor(maxX / self.cellSize)
+	local minCZ = math.floor(minZ / self.cellSize)
+	local maxCZ = math.floor(maxZ / self.cellSize)
+
+	local keys = {}
+
+	for x = minCX, maxCX do
+		for z = minCZ, maxCZ do
+			table.insert(keys, getKey(x, z))
+		end
+	end
+
+	return keys
 end
 
-function Grid:Update(obj, pos)
-	local cx, cz = self:WorldToCell(pos)
-	local newKey = getKey(cx, cz)
+-- Add object to grid
+function Grid:Add(obj)
+	local keys = self:_getKeysForObject(obj)
 
-	if obj._cell == newKey then
+	obj._cells = keys
+
+	for _, key in ipairs(keys) do
+		local cell = self.cells[key]
+		if not cell then
+			cell = {}
+			self.cells[key] = cell
+		end
+		table.insert(cell, obj)
+	end
+end
+
+-- Remove object from grid
+function Grid:Remove(obj)
+	if not obj._cells then
 		return
 	end
 
-	-- remove from old
-	local oldCell = self.cells[obj._cell]
-	if oldCell then
-		for i, v in ipairs(oldCell) do
-			if v == obj then
-				table.remove(oldCell, i)
+	for _, key in ipairs(obj._cells) do
+		local cell = self.cells[key]
+		if cell then
+			for i = #cell, 1, -1 do
+				if cell[i] == obj then
+					table.remove(cell, i)
+				end
+			end
+		end
+	end
+
+	obj._cells = nil
+end
+
+-- Update object position in grid
+function Grid:Update(obj)
+	local newKeys = self:_getKeysForObject(obj)
+
+	-- quick check if same
+	local oldKeys = obj._cells
+	local same = true
+
+	if not oldKeys or #oldKeys ~= #newKeys then
+		same = false
+	else
+		for i = 1, #newKeys do
+			if oldKeys[i] ~= newKeys[i] then
+				same = false
 				break
 			end
 		end
 	end
 
-	-- add to new
-	self.cells[newKey] = self.cells[newKey] or {}
-	table.insert(self.cells[newKey], obj)
-	obj._cell = newKey
+	if same then
+		return
+	end
+
+	self:Remove(obj)
+	self:Add(obj)
 end
 
+-- Get nearby objects (with dedupe)
 function Grid:GetNearby(pos)
 	local cx, cz = self:WorldToCell(pos)
+
 	local results = {}
+	local seen = {}
 
 	for x = -1, 1 do
 		for z = -1, 1 do
 			local key = getKey(cx + x, cz + z)
 			local cell = self.cells[key]
+
 			if cell then
 				for _, obj in ipairs(cell) do
-					table.insert(results, obj)
+					if not seen[obj] then
+						seen[obj] = true
+						table.insert(results, obj)
+					end
 				end
 			end
 		end
