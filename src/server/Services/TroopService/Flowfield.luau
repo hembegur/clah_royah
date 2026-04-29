@@ -179,42 +179,128 @@ end
 
 function FlowField:UpdateFromBlocked(changedKeys)
 	local queue = {}
+	local inQueue = {}
 
-	-- invalidate affected cells
+	-- mark blocked + invalidate
 	for _, k in ipairs(changedKeys) do
+		self.blocked[k] = true
 		self.cost[k] = nil
+
 		table.insert(queue, k)
+		inQueue[k] = true
 	end
 
-	-- propagate updates outward
-	while #queue > 0 do
-		local k = table.remove(queue, 1)
+	local head = 1
+
+	local offsets = {
+		{ 1, 0 },
+		{ -1, 0 },
+		{ 0, 1 },
+		{ 0, -1 },
+		{ 1, 1 },
+		{ -1, -1 },
+		{ -1, 1 },
+		{ 1, -1 },
+	}
+
+	while head <= #queue do
+		local k = queue[head]
+		head += 1
+		inQueue[k] = nil
 
 		local cx, cz = k:match("([^,]+),([^,]+)")
 		cx, cz = tonumber(cx), tonumber(cz)
 
-		local best = math.huge
-
-		for _, n in ipairs({
-			key(cx + 1, cz),
-			key(cx - 1, cz),
-			key(cx, cz + 1),
-			key(cx, cz - 1),
-		}) do
-			if self.cost[n] then
-				best = math.min(best, self.cost[n] + 1)
-			end
+		-- skip blocked
+		if self.blocked[k] then
+			continue
 		end
 
+		local best = math.huge
+
+		for _, o in ipairs(offsets) do
+			local nx = cx + o[1]
+			local nz = cz + o[2]
+
+			if nx < self.minX or nx > self.maxX then
+				continue
+			end
+			if nz < self.minZ or nz > self.maxZ then
+				continue
+			end
+
+			local nk = nx .. "," .. nz
+			local nCost = self.cost[nk]
+
+			if not nCost then
+				continue
+			end
+
+			local isDiagonal = (o[1] ~= 0 and o[2] ~= 0)
+
+			-- prevent corner cutting
+			if isDiagonal then
+				local k1 = (cx + o[1]) .. "," .. cz
+				local k2 = cx .. "," .. (cz + o[2])
+
+				if self.blocked[k1] or self.blocked[k2] then
+					continue
+				end
+			end
+
+			local stepCost = isDiagonal and 1.414 or 1
+			best = math.min(best, nCost + stepCost)
+		end
+
+		local oldCost = self.cost[k]
+
 		if best < math.huge then
-			if self.cost[k] ~= best then
+			if oldCost ~= best then
 				self.cost[k] = best
 
-				-- propagate further
-				table.insert(queue, key(cx + 1, cz))
-				table.insert(queue, key(cx - 1, cz))
-				table.insert(queue, key(cx, cz + 1))
-				table.insert(queue, key(cx, cz - 1))
+				-- propagate
+				for _, o in ipairs(offsets) do
+					local nx = cx + o[1]
+					local nz = cz + o[2]
+
+					if nx < self.minX or nx > self.maxX then
+						continue
+					end
+					if nz < self.minZ or nz > self.maxZ then
+						continue
+					end
+
+					local nk = nx .. "," .. nz
+
+					if not inQueue[nk] then
+						table.insert(queue, nk)
+						inQueue[nk] = true
+					end
+				end
+			end
+		else
+			-- unreachable now
+			if oldCost ~= nil then
+				self.cost[k] = nil
+
+				for _, o in ipairs(offsets) do
+					local nx = cx + o[1]
+					local nz = cz + o[2]
+
+					if nx < self.minX or nx > self.maxX then
+						continue
+					end
+					if nz < self.minZ or nz > self.maxZ then
+						continue
+					end
+
+					local nk = nx .. "," .. nz
+
+					if not inQueue[nk] then
+						table.insert(queue, nk)
+						inQueue[nk] = true
+					end
+				end
 			end
 		end
 	end

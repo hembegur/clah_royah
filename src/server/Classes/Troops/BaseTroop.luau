@@ -1,5 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local TouchInputService = game:GetService("TouchInputService")
+local Grid = require("../../Services/TroopService/Grid")
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local Flowfield = require(ServerScriptService.Server.Services.TroopService.Flowfield)
 
@@ -14,15 +16,18 @@ function BaseTroop.new(id)
 	self.id = id
 	self.maxHp = 100
 	self.hp = self.maxHp
+	self.walkSpeed = 10
+
 	self.damage = 10
 	self.attackCooldown = 1
-	self.range = 5
-	self.walkSpeed = 10
+	self.attackRange = 5
+	self.aggroRange = 30
 
 	-- state
 	self.position = Vector3.new(0, 0, 0)
 	self.direction = Vector3.new(0, 0, 1)
 	self.target = nil
+	self.locked = false
 	self.isAlive = true
 	self.lastAttackTime = 0
 	self.moveTarget = nil
@@ -103,8 +108,40 @@ function BaseTroop:SetTarget(target)
 	self.target = target
 end
 
+function BaseTroop:FindTarget(ingameTroop)
+	local targetGroup = (self.team == "Red") and ingameTroop["Blue"] or ingameTroop["Red"]
+
+	local closestDistSq = self.aggroRange * self.aggroRange
+	local target = nil
+
+	local px, pz = self.position.X, self.position.Z
+
+	for _, enemy in ipairs(targetGroup) do
+		if not enemy.isAlive then
+			continue
+		end
+
+		local dx = enemy.position.X - px
+		local dz = enemy.position.Z - pz
+
+		-- cheap AABB check first
+		if math.abs(dx) > self.aggroRange or math.abs(dz) > self.aggroRange then
+			continue
+		end
+
+		local distSq = dx * dx + dz * dz
+
+		if distSq < closestDistSq then
+			closestDistSq = distSq
+			target = enemy
+		end
+	end
+
+	return target
+end
+
 -------------------UPDATE
-function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()))
+function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()), ingameTroop)
 	if not self.isAlive then
 		return
 	end
@@ -156,13 +193,19 @@ function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()))
 	end
 
 	-- Combat
+	local newTarget = self:FindTarget(ingameTroop)
+	if newTarget ~= nil then
+		self.target = newTarget
+	end
+
 	if not self.target or not self.target.isAlive then
+		self.target = nil
 		return
 	end
 
 	local dist = (self.position - self.target.position).Magnitude
 
-	if dist <= self.range then
+	if dist <= self.attackRange then
 		self.velocity *= 0.5 -- slow down / stop
 		self:Attack(self.target)
 	end

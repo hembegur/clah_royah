@@ -22,6 +22,20 @@ local function characterAdded(char)
 		end),
 		"Disconnect"
 	)
+	local ability2 = keybindModule.GetAction("InGame", "Ability2")
+	ability2.KeyboardBinding.KeyCode = Enum.KeyCode.Q
+	janitor:Add(
+		ability2.Pressed:Connect(function()
+			for _ = 1, 1 do
+				packets.spawnNpc:Fire({
+					Name = "SwordMan",
+					Team = "Red",
+					Position = char.HumanoidRootPart.Position + Vector3.new(0, 10, 0),
+				})
+			end
+		end),
+		"Disconnect"
+	)
 
 	local testMatch = keybindModule.GetAction("InGame", "testMatch")
 	testMatch.KeyboardBinding.KeyCode = Enum.KeyCode.R

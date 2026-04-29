@@ -5,6 +5,7 @@ local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local npcRegistry = require(ReplicatedStorage.Shared.Modules.Core.NpcRegistry)
 local troopPhysics = require(script.Parent.TroopPhysics)
 local Grid = require(script.Parent.Grid)
+local Global = require(ReplicatedStorage.Shared.Global)
 
 local troopService = {} -- SERVER
 
@@ -40,10 +41,10 @@ function troopService:SpawnNpc(data, troopList)
 	return newTroop
 end
 
-function troopService:Update(dt, troopList, buildingList, grid: typeof(Grid.new()), flowfield)
+function troopService:Update(dt, troopList, buildingList, grid: typeof(Grid.new()), flowfield, ingameTroop)
 	for _, team in pairs(troopList) do
 		for i, troop in pairs(team) do
-			troop:Update(dt, flowfield)
+			troop:Update(dt, flowfield, ingameTroop)
 			grid:Update(troop, troop.position)
 
 			if not troop.isAlive then

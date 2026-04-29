@@ -97,7 +97,7 @@ function Match:Start()
 	local janitor = self.janitor :: typeof(Janitor.new())
 	janitor:Add(
 		RunService.Heartbeat:Connect(function(dt: number)
-			TroopService:Update(dt, self.ingameTroop, self.ingameBuilding, self.grid, self.flowfield)
+			TroopService:Update(dt, self.ingameTroop, self.ingameBuilding, self.grid, self.flowfield, self.ingameTroop)
 		end),
 		"Disconnect"
 	)
