@@ -32,8 +32,10 @@ function BaseTroop.new(id)
 	self.velocity = Vector3.zero
 	self.hitbox = {
 		type = "circle",
-		radius = 1.5,
+		radius = 3,
 	}
+	self.moveDir = Vector3.zero
+	self.dt = 0.016
 
 	self.renderHeight = 6.5
 	self.dataSendRate = 0.05
@@ -106,7 +108,7 @@ function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()))
 	if not self.isAlive then
 		return
 	end
-
+	self.dt = dt
 	-- Movement
 
 	if self.moveTarget then
@@ -126,6 +128,7 @@ function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()))
 				self.position += dir * moveStep
 			end
 		end
+		self.moveDir = dir
 	else
 		local cx = math.floor(self.position.X / flowfield.cellsize) --replace with cell size later
 		local cz = math.floor(self.position.Z / flowfield.cellsize)
@@ -135,6 +138,7 @@ function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()))
 		--print(k, dir)
 
 		if dir then
+			self.moveDir = dir
 			local moveStep = self.walkSpeed * dt
 			self.position += dir * moveStep
 		end

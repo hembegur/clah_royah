@@ -95,7 +95,19 @@ function troopPhysics:resolveCircleBox(troop, building)
 
 	local dir = diff.Unit
 
-	troop.velocity += dir * overlap * 5
+	local normal = dir -- already unit
+
+	-- your intended movement this frame
+	local move = troop.moveDir * troop.walkSpeed * troop.dt
+	-- check if moving into wall
+	if move:Dot(normal) < -0.001 then
+		-- remove inward component → slide
+		move = move - normal * move:Dot(normal)
+	end
+	-- apply corrected movement
+	troop.position += move
+	-- push out
+	troop.position += normal * overlap
 end
 
 function troopPhysics:Update(grid)
