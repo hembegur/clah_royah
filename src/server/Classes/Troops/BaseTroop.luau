@@ -37,7 +37,7 @@ function BaseTroop.new(id)
 	self.velocity = Vector3.zero
 	self.hitbox = {
 		type = "circle",
-		radius = 3,
+		radius = 1.5,
 	}
 	self.moveDir = Vector3.zero
 	self.dt = 0.016
@@ -102,6 +102,7 @@ function BaseTroop:Attack(target)
 
 	self.lastAttackTime = now
 	target:TakeDamage(self.damage)
+	print("hit")
 end
 
 function BaseTroop:SetTarget(target)
@@ -109,7 +110,16 @@ function BaseTroop:SetTarget(target)
 end
 
 function BaseTroop:FindTarget(ingameTroop)
-	local targetGroup = (self.team == "Red") and ingameTroop["Blue"] or ingameTroop["Red"]
+	if self.locked then
+		return
+	end
+
+	local targetGroup
+	if self.team == "Red" then
+		targetGroup = ingameTroop["Blue"]
+	else
+		targetGroup = ingameTroop["Red"]
+	end
 
 	local closestDistSq = self.aggroRange * self.aggroRange
 	local target = nil
@@ -196,18 +206,26 @@ function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()), ingame
 	local newTarget = self:FindTarget(ingameTroop)
 	if newTarget ~= nil then
 		self.target = newTarget
+		self.moveTarget = newTarget.position
 	end
 
 	if not self.target or not self.target.isAlive then
 		self.target = nil
+		self.moveTarget = nil
+		self.locked = false
 		return
 	end
 
 	local dist = (self.position - self.target.position).Magnitude
 
 	if dist <= self.attackRange then
-		self.velocity *= 0.5 -- slow down / stop
+		--print(self.team .. " attack")
+		---self.velocity *= 0.5 -- slow down / stop
+		self.locked = true
 		self:Attack(self.target)
+		self.moveTarget = self.position
+	else
+		self.locked = false
 	end
 end
 

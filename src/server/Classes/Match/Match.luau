@@ -103,20 +103,28 @@ function Match:Start()
 	)
 	janitor:Add(
 		packets.spawnNpc.OnServerEvent:Connect(function(player: Player, data)
-			for _, p in ipairs(self.redTeam) do
-				if p.player == player then
-					local newTroop = TroopService:SpawnNpc(data, self.ingameTroop["Red"])
-					janitor:Add(newTroop, "Die")
-					return newTroop
-				end
+			local spawnTeam
+			if data.Team == "Blue" then
+				spawnTeam = self.ingameTroop["Blue"]
+			else
+				spawnTeam = self.ingameTroop["Red"]
 			end
-			for _, p in ipairs(self.blueTeam) do
-				if p.player == player then
-					local newTroop = TroopService:SpawnNpc(data, self.ingameTroop["Blue"])
-					janitor:Add(newTroop, "Die")
-					return newTroop
-				end
-			end
+			local newTroop = TroopService:SpawnNpc(data, spawnTeam)
+			janitor:Add(newTroop, "Die") ------TESTING PURPOSE
+			-- for _, p in ipairs(self.redTeam) do
+			-- 	if p.player == player then
+			-- 		local newTroop = TroopService:SpawnNpc(data, self.ingameTroop["Red"])
+			-- 		janitor:Add(newTroop, "Die")
+			-- 		return newTroop
+			-- 	end
+			-- end
+			-- for _, p in ipairs(self.blueTeam) do
+			-- 	if p.player == player then
+			-- 		local newTroop = TroopService:SpawnNpc(data, self.ingameTroop["Blue"])
+			-- 		janitor:Add(newTroop, "Die")
+			-- 		return newTroop
+			-- 	end
+			-- end
 			return
 		end),
 		"Disconnect"

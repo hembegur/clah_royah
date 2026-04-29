@@ -30,14 +30,6 @@ function troopService:SpawnNpc(data, troopList)
 
 	newTroop:SetPosition(data.Position + Vector3.new(0, 10, 0))
 
-	-- task.spawn(function() --test move
-	-- 	--newTroop:MoveTo(Vector3.new(50, 10, 50))
-	-- 	for _ = 1, 20 do
-	-- 		newTroop:MoveTo(Vector3.new(random:NextInteger(-150, 100), 10, random:NextInteger(-150, 100)))
-	-- 		task.wait(5)
-	-- 	end
-	-- end)
-
 	return newTroop
 end
 
@@ -48,6 +40,7 @@ function troopService:Update(dt, troopList, buildingList, grid: typeof(Grid.new(
 			grid:Update(troop, troop.position)
 
 			if not troop.isAlive then
+				grid:Remove(troop)
 				table.remove(team, i)
 			end
 		end
