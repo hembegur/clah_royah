@@ -82,7 +82,6 @@ function BaseTroop:TakeDamage(amount: number)
 	end
 
 	packets.updateNpcHp:Fire(self.id, self.hp / self.maxHp * 1000)
-	print(self.hp / self.maxHp)
 	self.hp -= amount
 
 	if self.hp <= 0 then
@@ -102,7 +101,6 @@ function BaseTroop:Attack(target)
 
 	self.lastAttackTime = now
 	target:TakeDamage(self.damage)
-	print("hit")
 end
 
 function BaseTroop:SetTarget(target)
