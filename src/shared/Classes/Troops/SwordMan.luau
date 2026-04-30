@@ -19,10 +19,14 @@ packets.spawnNpc.OnClientEvent:Connect(function(data)
 	local npcClone = ReplicatedStorage.Assets.Troops.DefaultRig:Clone()
 	npcClone.Parent = workspace
 	npcClone.HumanoidRootPart.Anchored = true
+
+	local newHealthGui = ReplicatedStorage.Assets.Gui.HealthGui:Clone() :: BillboardGui
+	newHealthGui.Parent = npcClone.Head
 	SwordMan.Npcs[data.id] = {
 		model = npcClone,
 		targetPos = nil,
 		targetDir = nil,
+		healthGui = newHealthGui,
 	}
 	ragdollService:SetUp(npcClone)
 	ragdollService:RagdollCharacter(npcClone)
@@ -61,6 +65,11 @@ packets.killNpc.OnClientEvent:Connect(function(id: number)
 		SwordMan.Npcs[id]["model"]:Destroy()
 		SwordMan.Npcs[id] = nil
 	end
+end)
+
+packets.updateNpcHp.OnClientEvent:Connect(function(id: number, hp: number)
+	SwordMan.Npcs[id]["healthGui"].Health.Meter:TweenSize(UDim2.fromScale(hp / 1000, 1), "In", "Linear", 0.1)
+	print(hp / 1000)
 end)
 
 RunService.Heartbeat:Connect(function(dt)

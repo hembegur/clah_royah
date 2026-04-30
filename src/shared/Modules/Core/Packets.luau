@@ -10,6 +10,7 @@ Packets.killNpc = packet("killNpc", packet.NumberU16) -- Id
 Packets.updateNpcPos = packet("updateNpcPos", packet.NumberU16, packet.Vector3F24) --id / position
 Packets.updateNpcDir = packet("updateNpcDir", packet.NumberU16, packet.Vector3F24) --id / look at position
 Packets.teleportNpc = packet("teleportNpc", packet.NumberU16, packet.Vector3F24) --id / position
+Packets.updateNpcHp = packet("updateHP", packet.NumberU16, packet.NumberS16) --id / hp
 
 Packets.removeFromClient = packet("removeFromClient", packet.Any) --Delete from client
 

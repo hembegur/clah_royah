@@ -102,6 +102,7 @@ function troopPhysics:resolveCircleBox(troop, building)
 	-- check if moving into wall
 	if move:Dot(normal) < -0.001 then
 		-- remove inward component → slide
+		print("try to slide")
 		move = move - normal * move:Dot(normal)
 	end
 	-- apply corrected movement

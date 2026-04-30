@@ -1,7 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
-local TouchInputService = game:GetService("TouchInputService")
-local Grid = require("../../Services/TroopService/Grid")
 local packets = require(ReplicatedStorage.Shared.Modules.Core.Packets)
 local Flowfield = require(ServerScriptService.Server.Services.TroopService.Flowfield)
 
@@ -21,7 +19,7 @@ function BaseTroop.new(id)
 	self.damage = 10
 	self.attackCooldown = 1
 	self.attackRange = 5
-	self.aggroRange = 30
+	self.aggroRange = 26
 
 	-- state
 	self.position = Vector3.new(0, 0, 0)
@@ -83,6 +81,8 @@ function BaseTroop:TakeDamage(amount: number)
 		return
 	end
 
+	packets.updateNpcHp:Fire(self.id, self.hp / self.maxHp * 1000)
+	print(self.hp / self.maxHp)
 	self.hp -= amount
 
 	if self.hp <= 0 then
@@ -177,7 +177,7 @@ function BaseTroop:Update(dt: number, flowfield: typeof(Flowfield.new()), ingame
 		end
 		self.moveDir = dir
 	else
-		local cx = math.floor(self.position.X / flowfield.cellsize) --replace with cell size later
+		local cx = math.floor(self.position.X / flowfield.cellsize)
 		local cz = math.floor(self.position.Z / flowfield.cellsize)
 
 		local k = cx .. "," .. cz
